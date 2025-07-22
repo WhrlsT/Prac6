@@ -60,7 +60,7 @@ class _MyHomePageState extends State<MyHomePage> {
   double _loanAmount = 0.0;
   double _netIncome = 0.0;
   double _interestRate = 0.0;
-  int _loanperiod = 1;
+  int _loanPeriod = 1;
   bool _hasGuarantor = false;
   int _carType = 1; // 1 new , 2 = used
   double _repaymentAmount = 0.0;
@@ -81,8 +81,6 @@ class _MyHomePageState extends State<MyHomePage> {
   //Form Controller
   final _formKey = GlobalKey<FormState>();
 
-
-
   @override
   Widget build(BuildContext context) {
     // This method is rerun every time setState is called, for instance as done
@@ -101,38 +99,63 @@ class _MyHomePageState extends State<MyHomePage> {
         // the App.build method, and use it to set our appbar title.
         title: Text(widget.title),
       ),
-      body: Center(
-        // Center is a layout widget. It takes a single child and positions it
-        // in the middle of the parent.
-        child: Column(
-          // Column is also a layout widget. It takes a list of children and
-          // arranges them vertically. By default, it sizes itself to fit its
-          // children horizontally, and tries to be as tall as its parent.
-          //
-          // Column has various properties to control how it sizes itself and
-          // how it positions its children. Here we use mainAxisAlignment to
-          // center the children vertically; the main axis here is the vertical
-          // axis because Columns are vertical (the cross axis would be
-          // horizontal).
-          //
-          // TRY THIS: Invoke "debug painting" (choose the "Toggle Debug Paint"
-          // action in the IDE, or press "p" in the console), to see the
-          // wireframe for each widget.
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            const Text('You have pushed the button this many times:'),
-            Text(
-              '$_counter',
-              style: Theme.of(context).textTheme.headlineMedium,
-            ),
-          ],
+      body: Form(
+        key:_formKey,
+        child: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+              const Text('You have pushed the button this many times:'),
+
+            ],
+          ),
         ),
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
-        child: const Icon(Icons.add),
-      ), // This trailing comma makes auto-formatting nicer for build methods.
     );
+  }
+
+  void myAlertDialog() {
+    AlertDialog eligibilityAlertDialog = AlertDialog(
+      title: const Text('Eligibility'),
+      content: const Text('You are not lgbt for this loan'
+          'Get a guarantor to proceed'),
+      actions: [
+        TextButton(
+            onPressed: () {
+              Navigator.pop(context);
+            },
+            child: Text('OK'))
+      ],
+    );
+
+    showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return eligibilityAlertDialog;
+        }
+    );
+  }
+
+  void _calculateRepayment() {
+    _loanAmount = double.tryParse(loanAmountCtrl.text)!;
+    _netIncome = double.tryParse(netIncomeCtrl.text)!;
+    _interestRate = double.tryParse(interestRateCtrl.text)!;
+
+    var interest = _loanAmount * _loanPeriod * (_interestRate / 100);
+    _repaymentAmount = (_loanAmount + interest) / (_loanPeriod * 12 );
+
+    bool eligible = _netIncome * 0.3 >= _repaymentAmount;
+
+    if (eligible || _hasGuarantor) {
+      // WHENEVER UI CHANGE, PUT IN SET STATE
+      setState(() {
+        _repaymentAmount = 'Repayment Amount : '
+                           '${myCurrency.currencySymbol}'
+                           '${myCurrency.format(_repaymentAmount)}'
+                           '\n'
+                           'Eligibility : ${eligible? 'Eligible' : 'Not Eligible'}' as double;
+      });
+    }
+
   }
 }
