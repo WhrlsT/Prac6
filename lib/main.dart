@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:intl/intl.dart' as intl;
 
 void main() {
@@ -99,15 +100,82 @@ class _MyHomePageState extends State<MyHomePage> {
         // the App.build method, and use it to set our appbar title.
         title: Text(widget.title),
       ),
-      body: Form(
-        key:_formKey,
-        child: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: <Widget>[
-              const Text('You have pushed the button this many times:'),
+      body: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Form(
+          key:_formKey,
+          child: Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: <Widget>[
 
-            ],
+                TextFormField(
+                  decoration: const InputDecoration (labelText: 'Loan Amount'),
+                  keyboardType: TextInputType.number,
+                  inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                  controller: loanAmountCtrl,
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please enter loan amount';
+                    } return null;
+                  },
+                ),
+
+                TextFormField(
+                  decoration: const InputDecoration (labelText: 'Net Income'),
+                  keyboardType: TextInputType.number,
+                  inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                  controller: netIncomeCtrl,
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please enter net income';
+                    } return null;
+                  },
+                ),
+
+                DropdownButtonFormField(
+                    value: _loanPeriod,
+                    items: _years.map((int item){
+                      return DropdownMenuItem(
+                        value: item,
+                        child: Text('$item year(s)'),
+                      );
+                    }).toList(),
+                    onChanged: (int? item){
+                      setState(() {
+                        _loanPeriod = item!;
+                      });
+                    },
+                    validator: (value){
+                      if(value == 0){
+                        return 'Please select an option';
+                      }
+                      return null;
+                    },
+                    decoration: const InputDecoration(
+                       labelText: 'Select loan period (year)'
+                    ),
+                  ),
+
+               TextFormField(
+                 controller: interestRateCtrl,
+                 keyboardType: const TextInputType.numberWithOptions(
+                   decimal: true,
+                   signed: false
+                 ),
+                 inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'[0-9]'))],
+                 decoration: const InputDecoration(
+                   labelText: 'Interest Rate (%)'
+                 ),
+                 validator: (value) {
+                   if (value == null || value.isEmpty) {
+                     return 'Please enter interest rate';
+                   } return null;
+                 },
+               )
+
+              ],
+            ),
           ),
         ),
       ),
